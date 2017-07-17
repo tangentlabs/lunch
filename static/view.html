@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/milligram/dist/milligram.min.css">
+    </head>
+    <body>
+        <main class="wrapper">
+            <section class="container" id="head">
+                <h1>Lunch</h1>
+            </section>
+            <section class="container" id="main">
+                
+                <div class="row">
+                    <div class="column column-25">navigation</div>
+                    <div class="column">
+                        <h1>View Lunch!</h1>
+                    
+                        <p>ID: {{.ID}}</p>
+                        <p>Question: {{.Question}}<p>
+                        <h2>Results</h2>
+                        {{ range $key, $value := .Votes }}
+                            <p><b>{{ $key }}:</b> {{ $value }}</p>
+                        {{ end }}
+                    </div>
+                </row>
+                <a href="/close-vote/{{ .ID }}">Close vote</a>
+            </section>
+        </main>
+    </body>
+</html>
