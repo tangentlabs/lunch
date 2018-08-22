@@ -59,7 +59,9 @@ func main() {
 	logger := log.New(os.Stdout, "slack-bot: ", log.Lshortfile|log.LstdFlags)
 	slack.SetLogger(logger)
 
-	ls := lunchServer{s: bs, slack: api}
+	c := comsClient{slack: api}
+
+	ls := lunchServer{s: bs, c: c}
 
 	r := mux.NewRouter()
 
@@ -82,14 +84,27 @@ func main() {
 }
 
 type lunchServer struct {
-	s     store
-	slack *slack.Client
+	s store
+	c comsClient
 }
 
 type store interface {
 	Find([]byte) (lunch, error)
 	Store([]byte, lunch) (lunch, error)
 	List() []lunch
+}
+
+type comsClient struct {
+	slack *slack.Client
+}
+
+func (c *comsClient) PostMessage(dest string, message string, l lunch) error {
+	params := lunchToSlackMsg(l)
+	channelID, timestamp, err := c.slack.PostMessage(dest, message, params)
+	if err != nil {
+		return fmt.Errorf("Could not send to slack %s:%s %s: ", channelID, timestamp, err.Error())
+	}
+	return nil
 }
 
 func (s *lunchServer) indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -176,10 +191,9 @@ func (s *lunchServer) submitLunchHandler(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	params := lunchToSlackMsg(l)
-	channelID, timestamp, err := s.slack.PostMessage("#general", "What's for lunch?", params)
+	err = s.c.PostMessage("#general", "What's for lunch?", l)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Could not send to slack %s:%s %s: ", channelID, timestamp, err.Error()), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
