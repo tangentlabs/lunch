@@ -360,6 +360,8 @@ func (s boltStore) List() []lunch {
 
 func getCurrentKey() string {
 	_, weekNo := time.Now().ISOWeek()
-	id := strings.Join([]string{"lunch_", strconv.Itoa(weekNo)}, "")
+	y := time.Now().Format("2006")
+
+	id := strings.Join([]string{"lunch_", strconv.Itoa(weekNo), y}, "")
 	return id
 }

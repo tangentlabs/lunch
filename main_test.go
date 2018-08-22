@@ -177,7 +177,7 @@ func TestCloseHandlerClosesVote(t *testing.T) {
 
 func TestIDGen(t *testing.T) {
 	k := getCurrentKey()
-	var validKey = regexp.MustCompile(`^lunch_[0-9]{1,2}$`)
+	var validKey = regexp.MustCompile(`^lunch_[0-9]{5,6}$`)
 
 	if !validKey.MatchString(k) {
 		t.Errorf("Tested key did not match extepcted format: %s", k)
